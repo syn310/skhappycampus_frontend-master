@@ -1,0 +1,58 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: skhappycampus-frontend-ingress
+  namespace: skhappycampus
+  annotations:
+    #kubernetes.io/ingress.class: "nginx"
+    #kubernetes.io/ingress.allow-http: "false"
+    #ingress.kubernetes.io/rewrite-target: /
+    #ingress.kubernetes.io/force-ssl-redirect: "true"
+    ingress.bluemix.net/ALB-ID: "private-crbqba4qot0qgcumh2c8tg-alb2"
+    ingress.bluemix.net/redirect-to-https: "true"
+    ingress.bluemix.net/rewrite-path: "serviceName=skhappycampus-backend-service rewrite=/;serviceName=skhappycampus-auth-service rewrite=/"
+spec:
+  tls:
+  - secretName: tls-secret
+    hosts:
+    - skhappycampus.com
+    - www.skhappycampus.com
+    - smtp.skhappycampus.com
+  rules:
+  - host: www.skhappycampus.com
+    http:
+      paths:
+      - backend:
+          serviceName: skhappycampus-frontend-service
+          servicePort: 80
+        path: /
+      - backend:
+          serviceName: skhappycampus-backend-service
+          servicePort: 8080
+        path: /api/
+      - backend:
+          serviceName: skhappycampus-auth-service
+          servicePort: 8081
+        path: /auth/   
+  - host: skhappycampus.com
+    http:
+      paths:
+      - backend:
+          serviceName: skhappycampus-frontend-service
+          servicePort: 80
+        path: /
+      - backend:
+          serviceName: skhappycampus-backend-service
+          servicePort: 8080
+        path: /api/
+      - backend:
+          serviceName: skhappycampus-auth-service
+          servicePort: 8081
+        path: /auth/
+  - host: smtp.skhappycampus.com
+    http:
+      paths:
+      - backend:
+          serviceName: skhappycampus-mailserver-service
+          servicePort: 25
+        path: /
